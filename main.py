@@ -318,11 +318,11 @@ JOIN customers c
 JOIN employees e
     ON c.salesRepEmployeeNumber = e.employeeNumber
 JOIN offices o
-    ON e.officeCode = o.officeCode;
+    ON e.officeCode = o.officeCode
+ORDER BY e.firstName, e.lastName;
 """
 
 df_under_20 = pd.read_sql(query, conn)
-
 
 # ### Close the connection
 
