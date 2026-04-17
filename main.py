@@ -290,40 +290,34 @@ df_customers = pd.read_sql(query, conn)
 # CodeGrade step10
 # Replace None with your code
 df_under_20 = query = """
-WITH low_products AS (
-    SELECT 
-        p.productCode
-    FROM products p
-    JOIN orderdetails od
-        ON p.productCode = od.productCode
-    JOIN orders o
-        ON od.orderNumber = o.orderNumber
-    GROUP BY p.productCode
-    HAVING COUNT(DISTINCT o.customerNumber) < 20
-)
-
 SELECT DISTINCT
     e.employeeNumber,
     e.firstName,
     e.lastName,
     o.city,
     o.officeCode
-FROM low_products lp
-JOIN orderdetails od
-    ON lp.productCode = od.productCode
-JOIN orders ord
-    ON od.orderNumber = ord.orderNumber
+FROM employees e
 JOIN customers c
-    ON ord.customerNumber = c.customerNumber
-JOIN employees e
-    ON c.salesRepEmployeeNumber = e.employeeNumber
+    ON e.employeeNumber = c.salesRepEmployeeNumber
+JOIN orders ord
+    ON c.customerNumber = ord.customerNumber
+JOIN orderdetails od
+    ON ord.orderNumber = od.orderNumber
 JOIN offices o
     ON e.officeCode = o.officeCode
+WHERE od.productCode IN (
+    SELECT 
+        od2.productCode
+    FROM orderdetails od2
+    JOIN orders o2
+        ON od2.orderNumber = o2.orderNumber
+    GROUP BY od2.productCode
+    HAVING COUNT(DISTINCT o2.customerNumber) < 20
+)
 ORDER BY e.firstName, e.lastName;
 """
 
 df_under_20 = pd.read_sql(query, conn)
-
 # ### Close the connection
 
 # In[12]:
